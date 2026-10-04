@@ -1,5 +1,6 @@
 import { MODULE_BY_KEY } from '@/data/modules'
 import { allRows, listRows, resetRows, saveRows } from '@/data/local-store'
+import { confirmReturns, issueLoan, registerReturns } from '@/api/tool-loan-service'
 import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } from '@/data/types'
 
 // 会写进数据的「往回走」动作：命中就把这条记录标成异常态，看板上能一眼看出来。
@@ -30,6 +31,19 @@ export function listEntries(key: string, filters: Record<string, string> = {}): 
 
 export function runAction(key: string, id: number, action: string): ActionResult {
   const meta = moduleMeta(key)
+  if (key === 'tooloan') {
+    if (action === '领用出库') {
+      return issueLoan(id)
+    }
+    if (action === '登记归还') {
+      return registerReturns([id]).receipts[0] ?? { ok: false, message: '请选择借用单' }
+    }
+    if (action === '确认归还') {
+      return confirmReturns([id], '完好').receipts[0] ?? { ok: false, message: '请选择借用单' }
+    }
+    return { ok: false, message: `${meta.entity}没有登记「${action}」这个动作` }
+  }
+
   const target = meta.actionTargets[action]
   if (!target) {
     return { ok: false, message: `${meta.entity}没有登记「${action}」这个动作` }

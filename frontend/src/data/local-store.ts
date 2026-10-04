@@ -41,10 +41,13 @@ export function listRows(key: string): EntryRow[] {
 }
 
 export function saveRows(key: string, rows: EntryRow[]): void {
-  const next = { ...allRows(), [key]: rows }
-  cache = next
+  saveAll({ ...allRows(), [key]: rows })
+}
+
+export function saveAll(rowsByKey: Record<string, EntryRow[]>): void {
+  cache = rowsByKey
   if (typeof window !== 'undefined' && window.localStorage) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rowsByKey))
   }
 }
 
