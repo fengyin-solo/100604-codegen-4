@@ -67,6 +67,42 @@
       <span>共 {{ total }} 条机坪安全巡查记录</span>
       <span v-if="errorMessage" class="error-text">{{ errorMessage }}</span>
     </footer>
+
+    <section class="loan-rect-panel">
+      <header class="loan-rect-head">
+        <div>
+          <h3>机坪工器具归还整改清单（与借用台账同源）</h3>
+          <p class="page-desc">
+            借用归还核库产生的逾期 / 损坏 / 缺失结论自动落到本清单；当前待整改
+            <strong>{{ pendingRects.length }}</strong> 条，处理入口在「机坪工器具台账」。
+          </p>
+        </div>
+        <RouterLink class="btn" to="/loan">前往借用台账</RouterLink>
+      </header>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>整改单号</th><th>来源借用单</th><th>器具编号</th><th>班组/借用人</th>
+            <th>应还/实还</th><th>归还结论</th><th>问题与整改措施</th><th>状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in pendingRects" :key="item.id">
+            <td>{{ item.code }}</td>
+            <td>{{ item.orderCode }}</td>
+            <td>{{ item.toolCode }}</td>
+            <td>{{ item.team }} / {{ item.borrower }}</td>
+            <td>{{ item.expectedReturn }} / {{ item.returnedAt }}</td>
+            <td>{{ item.conclusion }}</td>
+            <td>{{ item.issue }}；{{ item.action }}</td>
+            <td>{{ item.status }}</td>
+          </tr>
+          <tr v-if="!pendingRects.length">
+            <td colspan="8" class="empty-state">暂无未闭环的工器具归还整改项</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </section>
 </template>
 
@@ -79,7 +115,13 @@ import {
   moduleMeta,
   runAction as applyAction,
 } from '@/api/local-service'
+import { useLoanStore } from '@/stores/loan'
 import type { EntryRow } from '@/data/types'
+
+const loanStore = useLoanStore()
+const pendingRects = computed(() =>
+  loanStore.rectificationList.filter((item) => item.status !== '已闭环'),
+)
 
 const meta = moduleMeta('apron')
 const columns = ["巡查编号", "巡查区域", "巡查人员", "发现问题数", "整改单号", "巡查时间", "复查日期", "巡查状态"]
@@ -135,3 +177,9 @@ function reload() {
 
 onMounted(reload)
 </script>
+
+<style scoped>
+.loan-rect-panel { margin-top: 18px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.loan-rect-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.loan-rect-head h3 { margin: 0 0 4px; font-size: 14px; }
+</style>

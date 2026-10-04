@@ -19,6 +19,7 @@ const Vip = () => import('@/views/vip/index.vue')
 const Delay = () => import('@/views/delay/index.vue')
 const Apron = () => import('@/views/apron/index.vue')
 const Resplan = () => import('@/views/resplan/index.vue')
+const Loan = () => import('@/views/loan/index.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -41,6 +42,7 @@ const router = createRouter({
     { path: '/vip', name: 'vip', component: Vip },
     { path: '/delay', name: 'delay', component: Delay },
     { path: '/apron', name: 'apron', component: Apron },
+    { path: '/loan', name: 'loan', component: Loan },
     { path: '/resplan', name: 'resplan', component: Resplan },
   ],
 })
